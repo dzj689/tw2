@@ -11,9 +11,12 @@ function TIA_Param = TIA_mode_parameters_v2(varargin)
 %     mode should be a number between 5 and 8
 %
 %     1st version 2025/05/25  Binbin
-%     2st version 2025/06/2  dzj 
+%                 2025/06/2  dzj 
 %           update [mode5:circle time; N_circle; gating_tof_64E9M; gating_timing_64E9M ]
-%           add [case6part; case7part; case8; gating_tof_48E9M; gating_timing_48E9M  ]
+%           add [case6part; mode7part; mode8; gating_tof_48E9M; gating_timing_48E9M  ]
+%                 2025/06/3  dzj 
+%           update [mode5:circle time; N_circle;]
+%           add [mcp; gate_l; gate_h]
 
     if (nargin ~= 1)
       nargin
@@ -40,6 +43,9 @@ function TIA_Param = TIA_mode_parameters_v2(varargin)
             TIA_Param.npl       = 9;
             TIA_Param.slot_time = 3.472222222;        % ms
             TIA_Param.mass_num  = [1,2,4,8,16,32,44,56,70];  % m/q, the last one is 60-70
+            TIA_Param.mcp       = 2500;
+            TIA_Param.gate_h    = 300;
+            TIA_Param.gate_l    = 0;
             
             % set phi and theta (phi is constant here)
             dphi = 360/TIA_Param.naz; dtht = 90/TIA_Param.npl;
@@ -89,11 +95,11 @@ function TIA_Param = TIA_mode_parameters_v2(varargin)
                                110780.1298	110596.4732	110425.8895	110267.4481	110120.2848	109989.144	109868.9088	 ...
                                109757.2321	109653.5046	109557.7453	109475.3356	109398.792	109327.6968	109261.6623	 ...
                                109203.1378	109153.0876	109106.6001	109063.4216	109023.3166	108991.051	108963.2156	 ...
-                               108941.243	108924.071	108914.573	108906.4175	108900]; 
-             circle_time = [circle_time, NaN(1,16)];  % ns
+                               108941.243	108924.071	108914.573	108906.4175	108900 108900	108900	108900	108900 ...
+                               108900	108900	108900	108900	108900	108900	108900	108900	108900	108900	108900	108900]; 
              N_circle = [10	11	11	12	12	13	14	15	15	16	17	17	18	19	19	20	20	21	21	21	21	21	21	21 ...
-                                21	21	21	21	21	21	21	21	21	21	21	21	21	21	21	22	22	22	22	22	22	22	22	22 ];
-             N_circle = [N_circle,  NaN(1,16)];
+                                21	21	21	21	21	21	21	21	21	21	21	21	21	21	21	22	22	22	22	22	22	22 ...
+                                22	22 22	22	22	22	22	22	22	22	22	22	22	22	22	22	22	22];
 
                    
         case 6   % high energy resolution mode-----------------------------------------
@@ -103,6 +109,9 @@ function TIA_Param = TIA_mode_parameters_v2(varargin)
             TIA_Param.npl       = 9;
             TIA_Param.slot_time = 4.938271605;        % ms
             TIA_Param.mass_num  = [1];  % m/q, the last one is 60-70
+            TIA_Param.mcp       = 2500;
+            TIA_Param.gate_h    = 0;
+            TIA_Param.gate_l    = 0;
             
             % set phi and theta (phi is constant here)
             dphi = 360/TIA_Param.naz; dtht = 90/TIA_Param.npl;
@@ -122,9 +131,9 @@ function TIA_Param = TIA_mode_parameters_v2(varargin)
             TIA_Param.phi_upper = phi_upper;
             
             % set energy table  (energy and V_ESA are from the payload team)   
-           
+            % wait for data
             
-            % gate_tof
+            % no gate_tof
             
         case 7   % high angle resolution mode-----------------------------------------------
             TIA_Param.nmass     = 1;
@@ -133,6 +142,9 @@ function TIA_Param = TIA_mode_parameters_v2(varargin)
             TIA_Param.npl       = 15;
             TIA_Param.slot_time = 4.166666667;        % ms
             TIA_Param.mass_num  = [1];  % m/q, the last one is 60-70
+            TIA_Param.mcp       = 2500;
+            TIA_Param.gate_h    = 0;
+            TIA_Param.gate_l    = 0;
             
             % set phi and theta (phi is constant here)
             dphi = 360/TIA_Param.naz; dtht = 90/TIA_Param.npl;
@@ -152,9 +164,28 @@ function TIA_Param = TIA_mode_parameters_v2(varargin)
             TIA_Param.phi_upper = phi_upper;
             
             % set energy table  (energy and V_ESA are from the payload team)   
-           
+            energy = [2.79  3.23 3.75 4.35 5.04 5.84 6.77 7.84 9.09 10.54 12.22 14.16 16.42 19.03 22.06 25.57 29.64 34.35 39.82 ... 
+                             46.16 53.50 62.02 71.89 83.33 96.59 111.96 129.78 150.43 174.37 202.12 234.28 271.57 314.79 364.89 ...
+                             422.96 490.27 568.29 658.73 763.57 885.08 1025.94 1189.22 1378.47 1597.85 1852.14 2146.90 2488.57 ...
+                             2884.62 3343.69 3875.83 4492.65 5207.63 6036.40 6997.07 8110.62 9401.39 10897.58 12631.88 14642.19 ...
+                             16972.43 19673.51 22804.47 26433.70 30640.50 ];
+            V_ESA = [0.50 0.58 0.67 0.78 0.90 1.05 1.21 1.41 1.63 1.89 2.19 2.54 2.95 3.42 3.96 4.59 5.32 6.17 7.15 8.28 9.60 ... 
+                            11.13 12.90 14.96 17.34 20.10 23.29 27.00 31.30 36.28 42.05 48.75 56.50 65.50 75.92 88.00 102.01 118.24 ... 
+                            137.06 158.87 184.16 213.47 247.44 286.82 332.46 385.37 446.70 517.79 600.20 695.71 806.43 934.78  ...
+                            1083.54 1255.98 1455.86 1687.56 1956.13 2267.44 2628.29 3046.57 3531.42 4093.42 4744.87 5500.00 ];
+            nenergy = TIA_Param.nenergy;
+            energyall = log10((energy));
+            temp0 = 2*energyall(1)-energyall(2);
+            tempe = 2*energyall(end)-energyall(end-1);
+            energyall = [temp0 energyall tempe];
+            diffenall = diff(energyall);
+            energyupper = 10.^(log10(energy)+diffenall(2:1:nenergy+1)/2);
+            energylower = 10.^(log10(energy)-diffenall(1:1:nenergy)/2);   
+            TIA_Param.Wi = energy;
+            TIA_Param.energylower = energylower;
+            TIA_Param.energyupper = energyupper;
             
-            % gate_tof
+            % no gate_tof
             
         case 8   % high mass resolution mode (ion energy up to 3 keV)-----------------------
             TIA_Param.nmass     = 9;
@@ -163,6 +194,9 @@ function TIA_Param = TIA_mode_parameters_v2(varargin)
             TIA_Param.npl       = 9;
             TIA_Param.slot_time = 4.62962963;        % ms
             TIA_Param.mass_num  = [1,2,4,8,16,32,44,56,70];  % m/q, the last one is 60-70
+            TIA_Param.mcp       = 2500;
+            TIA_Param.gate_h    = 300;
+            TIA_Param.gate_l    = 0;
             
             % set phi and theta (phi is constant here)
             dphi = 360/TIA_Param.naz; dtht = 90/TIA_Param.npl;
